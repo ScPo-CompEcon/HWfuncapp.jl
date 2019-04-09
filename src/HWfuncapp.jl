@@ -117,14 +117,14 @@ function q3(b=10)
 	r = roots(h)
 
 	Plots.plot(h, label="h(x)")
-	p = Plots.scatter!(r,h.(r), label="Roots")
-
+	Plots.scatter!(r,h.(r), label="Roots")
+	Plots.savefig(joinpath(dirname(@__FILE__),"..","q3.png"))
 	# xbis = Fun(identity,-b..0)
 	g = cumsum(h) # indefinite  integral
 	g = g + h(-b) # definite integral with constant of integration
 	integral = norm(g(0) - g(-b)) # definite integral from -b to 0
 	# p is your plot
-	return (p,integral)
+	return (integral)
 end
 
 # optinal
@@ -187,10 +187,42 @@ function q6()
 
 end
 
-function q7()
+function q7(n=13)
+	f(x) = abs.(x).^0.5
 
+	# Regular grid
+	bs = BSpline(13,3,-1,1) #13 knots, degree 3 in [0,1], no multiplicity
+	# 3 knots grid
+	multiknots = vcat(range(-1,stop = -0.1,length = 5),0,0,0, range(0.1,stop = 1,length =5))
+	bs2 = BSpline(multiknots, 3)
 
-	PyPlot.savefig(joinpath(dirname(@__FILE__),"..","q7.png"))
+	# Evaluate function of interest
+	x = range(-1,stop =1.0, length = 65)
+	Y = f(x)
+
+	# Evaluate basis on grid
+	B = Array(getBasis(collect(x),bs))
+	B2 = Array(getBasis(collect(x),bs2))
+
+	# Solve for parameters
+	c = B\Y
+	c2 = B2\Y
+
+	# Compute fitted values
+	Yhat = B*c
+	Yhatbis = B2*c2
+
+	# Compute fitting errors
+	err = Y .- Yhat
+	errbis = Y .- Yhatbis
+
+	# Plot
+	p = Any[]
+	push!(p,Plots.plot(x, Y, title = "True function"))
+	push!(p,Plots.plot(x, [Yhat, Yhatbis], label = ["uniform" "multiplicity"], title="Approximations"))
+	push!(p,Plots.plot(x, [err, errbis], label = ["uniform" "multiplicity"], title="Errors"))
+	return Plots.plot(p...)
+	Plots.savefig(joinpath(dirname(@__FILE__),"..","q7.png"))
 end
 
 
