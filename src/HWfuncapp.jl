@@ -8,6 +8,7 @@ using PyPlot
 import ApproXD: getBasis, BSpline
 using Distributions
 using BasisMatrices
+using LinearAlgebra, SpecialFunctions
 using ApproxFun
 using Plots
 
@@ -88,7 +89,8 @@ function q2(b=4)
 	V = Array{Float64}(undef,n,deg + 1) # Create a Vandermonde matrix by evaluating the basis at the grid
 
 	for k = 1:deg+1
-	    V[:,k] = Fun(S,[zeros(k-1);1]).(p)
+	    V[:,k] = Fun(S,[zeros(k-1);1]).(p) # Evaluate Chebyshev basis at p
+		# [zeros(k-1);1] is the identity matrix, all observations have same k degree Chebyshev basis function, evaluated at a different point
 	end
 	V
 	g = Fun(S,V\v);
@@ -105,8 +107,22 @@ function q2(b=4)
 	Plots.savefig(fig,joinpath(dirname(@__FILE__),"..","q2.png"))
 end
 
-function q3(b::Number)
 
+function q3(b=10)
+
+	x = Fun(identity,-b..b)
+	f = sin(x^2)
+	g = cos(x)
+	h = f - g
+	r = roots(h)
+
+	Plots.plot(h, label="h(x)")
+	p = Plots.scatter!(r,h.(r), label="Roots")
+
+	# xbis = Fun(identity,-b..0)
+	g = cumsum(h) # indefinite  integral
+	g = g + h(-b) # definite integral with constant of integration
+	integral = norm(g(0) - g(-b)) # definite integral from -b to 0
 	# p is your plot
 	return (p,integral)
 end
