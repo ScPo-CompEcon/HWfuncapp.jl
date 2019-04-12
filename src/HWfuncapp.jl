@@ -17,27 +17,29 @@ export q1, q2, ChebyT
 
 function q1(n=15)
 	f(x) = x .+ 2x.^2 - exp.(-x)
-	nd(x) = cos.((2 .* x .- 1) .* pi ./ (2 .* n))
+	nd(x) = 3 * cos.((2 .* x .- 1) .* pi ./ (2 .* n))
 
 	p = n:-1:1
-	x = unitmap(range(-3, stop = 3, length = n), -3, 3)
+	x = range(-3, stop = 3, length = n)
 	cheb = zeros(n, n)
 	y = f(x)
 	node = nd(p)
 
 	for i in 1:n
-		cheb[:, i] = ChebyT.(node, i - 1)
+		cheb[:, i] = ChebyT.(unitmap(node, -3, 3), i - 1)
 	end
 
 	c = (cheb' * cheb)^-1 * cheb' * y
 	y2 = zeros(n)
 	for i in 1:n
-		y2 += c[i] * ChebyT.(x, i - 1)
+		y2 += c[i] * ChebyT.(unitmap(x, -3, 3), i - 1)
 	end
 	err = sum(y - y2)
-	
+	subplot(122)
 	PyPlot.plot(x, y)
 	PyPlot.plot(x, y2)
+	subplot(121)
+	PyPlot.plot(x, y - y2)
 	xlabel("x")
 	ylabel("y")
 	# without using PyPlot, just erase the `PyPlot.` part
