@@ -2,7 +2,6 @@ module HWfuncapp
 
 # you dont' have to use PyPlot. I did much of it in PyPlot, hence
 # you will see me often qualify code with `PyPlot.plot` or so.
-using PyPlot
 import ApproXD: getBasis, BSpline
 using Distributions
 using ApproxFun
