@@ -6,6 +6,7 @@ using FastGaussQuadrature # to get chebyshevnodes
 # you will see me often qualify code with `PyPlot.plot` or so.
 using PyPlot  
 import ApproXD: getBasis, BSpline
+using LinearAlgebra
 using Distributions
 using ApproxFun
 using Plots
@@ -13,56 +14,90 @@ using Plots
 ChebyT(x,deg) = cos(acos(x)*deg)
 unitmap(x,lb,ub) = 2 .* (x .- lb) ./ (ub .- lb) .- 1	#[a,b] -> [-1,1]
 
-export q1, q2, ChebyT
+export q1, q2, q3, q4, ChebyT
 
 function q1(n=15)
 	f(x) = x .+ 2x.^2 - exp.(-x)
-	nd(x) = 3 * cos.((2 .* x .- 1) .* pi ./ (2 .* n))
 
-	p = n:-1:1
-	x = range(-3, stop = 3, length = n)
+	deg = n:-1:1
+	precision = 10000
+	points = range(-3, 3, length=precision)
+
+	node = 3 * cos.((2 .* deg .- 1) .* pi ./ (2 .* n))
+	y = f(node)
+
 	cheb = zeros(n, n)
-	y = f(x)
-	node = nd(p)
-
 	for i in 1:n
 		cheb[:, i] = ChebyT.(unitmap(node, -3, 3), i - 1)
 	end
+	c = cheb^-1 * y
 
-	c = (cheb' * cheb)^-1 * cheb' * y
-	y2 = zeros(n)
+	estim = zeros(precision)
 	for i in 1:n
-		y2 += c[i] * ChebyT.(unitmap(x, -3, 3), i - 1)
+		estim += c[i] * ChebyT.(unitmap(points, -3, 3), i - 1)
 	end
-	err = sum(y - y2)
+
 	subplot(122)
-	PyPlot.plot(x, y)
-	PyPlot.plot(x, y2)
-	subplot(121)
-	PyPlot.plot(x, y - y2)
+	PyPlot.plot(points, f.(points))
+	PyPlot.scatter(points, estim, color="red", s=2)
 	xlabel("x")
 	ylabel("y")
+	subplot(121)
+	PyPlot.plot(points, f.(points) - estim)
 	# without using PyPlot, just erase the `PyPlot.` part
 	PyPlot.savefig(joinpath(dirname(@__FILE__),"..","q1.png"))
+
+	err = sum(abs.(f.(points) - estim))
 	return Dict(:error=>maximum(abs,err))
 end
 
 function q2(b::Number)
 	@assert b > 0
+	f(x) = x .+ 2x.^2 - exp.(-x)
+
+	precision = 10000
+	points = range(-3, 3, length=precision)
 	# use ApproxFun.jl to do the same:
-	
-	Plots.savefig(p,joinpath(dirname(@__FILE__),"..","q2.png"))
+	x = Fun(f, Chebyshev(-b..b))
+	estim = x.(points)
+
+	subplot(122)
+	PyPlot.plot(points, f.(points))
+	PyPlot.scatter(points, estim, color="red", s=2)
+	xlabel("x")
+	ylabel("y")
+	subplot(121)
+	PyPlot.plot(points, f.(points) - estim)
+
+	PyPlot.savefig(joinpath(dirname(@__FILE__),"..","q2.png"))
 end
 
 function q3(b::Number)
+	x = Fun(identity, -b..b)
+	f = sin(x^2)
+	g = cos(x)
+	h = f - g
 
+	r = roots(h)
+
+	p = Plots.plot(h, labels="h")
+	Plots.scatter!(r, h.(r), labels="roots.h")
+	Plots.savefig(joinpath(dirname(@__FILE__),"..","q3.png"))
 	# p is your plot
+	g = cumsum(h)
+	integral = g(b) - g(-b)
 	return (p,integral)
 end
 
 # optinal
 function q4()
-
+	precision = 10000
+	points = range(-1, stop = 1, length=precision)
+	fig = PyPlot.plot(points, ChebyT.(points, 0))
+	for i in 1:8
+		fig = PyPlot.plot(points, ChebyT.(points, i))
+	end
+	PyPlot.savefig(joinpath(dirname(@__FILE__),"..","q4.png"))
 	return fig
 end
 
