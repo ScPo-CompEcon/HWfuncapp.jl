@@ -13,9 +13,33 @@ using Plots
 ChebyT(x,deg) = cos(acos(x)*deg)
 unitmap(x,lb,ub) = 2 .* (x .- lb) ./ (ub .- lb) .- 1	#[a,b] -> [-1,1]
 
-function q1(n)
-	f(x) = x .+ 2x.^2 - exp.(-x)
+export q1, q2, ChebyT
 
+function q1(n=15)
+	f(x) = x .+ 2x.^2 - exp.(-x)
+	nd(x) = cos.((2 .* x .- 1) .* pi ./ (2 .* n))
+
+	p = n:-1:1
+	x = unitmap(range(-3, stop = 3, length = n), -3, 3)
+	cheb = zeros(n, n)
+	y = f(x)
+	node = nd(p)
+
+	for i in 1:n
+		cheb[:, i] = ChebyT.(node, i - 1)
+	end
+
+	c = (cheb' * cheb)^-1 * cheb' * y
+	y2 = zeros(n)
+	for i in 1:n
+		y2 += c[i] * ChebyT.(x, i - 1)
+	end
+	err = sum(y - y2)
+	
+	PyPlot.plot(x, y)
+	PyPlot.plot(x, y2)
+	xlabel("x")
+	ylabel("y")
 	# without using PyPlot, just erase the `PyPlot.` part
 	PyPlot.savefig(joinpath(dirname(@__FILE__),"..","q1.png"))
 	return Dict(:error=>maximum(abs,err))
@@ -24,7 +48,7 @@ end
 function q2(b::Number)
 	@assert b > 0
 	# use ApproxFun.jl to do the same:
-
+	
 	Plots.savefig(p,joinpath(dirname(@__FILE__),"..","q2.png"))
 end
 
