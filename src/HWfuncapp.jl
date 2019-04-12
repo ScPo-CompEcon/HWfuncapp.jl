@@ -9,6 +9,7 @@ using Plots
 using BasisMatrices
 using FastGaussQuadrature
 using LinearAlgebra, SpecialFunctions
+using PyPlot
 export ChebyT,Chebypolynomial, unitmap, q1, q2, q3, q7
 
 ChebyT(x,deg) = cos(acos(x)*deg)
