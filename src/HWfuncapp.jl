@@ -14,13 +14,14 @@ using Plots
 ChebyT(x,deg) = cos(acos(x)*deg)
 unitmap(x,lb,ub) = 2 .* (x .- lb) ./ (ub .- lb) .- 1	#[a,b] -> [-1,1]
 
-export q1, q2, q3, q4, q5, q7, runall
+export q1, q2, q3, q4, q5, q6, q7, runall
 
 function q1(n=15)
 	f(x) = x .+ 2x.^2 - exp.(-x)
+	n_new = 100
 
 	deg = n:-1:1
-	points = range(-3, 3, length=n)
+	points = range(-3, 3, length=n_new)
 
 	node = 3 * cos.((2 .* deg .- 1) .* pi ./ (2 .* n))
 	y = f(node)
@@ -31,18 +32,21 @@ function q1(n=15)
 	end
 	c = cheb^-1 * y
 
-	estim = zeros(n)
+	estim = zeros(n_new)
 	for i in 1:n
 		estim += c[i] * ChebyT.(unitmap(points, -3, 3), i - 1)
 	end
 
 	subplot(122)
-	PyPlot.plot(points, f.(points))
-	PyPlot.scatter(points, estim, color="red", s=2)
+	PyPlot.plot(points, f.(points), label="True function")
+	PyPlot.scatter(points, estim, color="red", s=2, label="approximation")
 	xlabel("x")
 	ylabel("y")
+	title("Chebyshev approximation")
+	legend()
 	subplot(121)
 	PyPlot.plot(points, f.(points) - estim)
+	title("Error")
 	# without using PyPlot, just erase the `PyPlot.` part
 	PyPlot.savefig(joinpath(dirname(@__FILE__),"..","q1.png"))
 
@@ -61,12 +65,15 @@ function q2(b::Number)
 	estim = x.(points)
 
 	subplot(122)
-	PyPlot.plot(points, f.(points))
-	PyPlot.scatter(points, estim, color="red", s=2)
+	PyPlot.plot(points, f.(points), label="True function")
+	PyPlot.scatter(points, estim, color="red", s=2, label="approximation")
 	xlabel("x")
 	ylabel("y")
+	title("Chebyshev approximation")
+	legend()
 	subplot(121)
 	PyPlot.plot(points, f.(points) - estim)
+	title("Error")
 
 	PyPlot.savefig(joinpath(dirname(@__FILE__),"..","q2.png"))
 end
@@ -181,9 +188,34 @@ end
 
 
 function q6()
-
+	f(x) = abs(x)^0.5
+	precision = 63
+	x = range(-1, 1, length=precision)
+	y = f.(x)
 	# compare 2 knot vectors with runge's function
 
+	myknots = vcat(range(-1,stop = -0.1,length = 5), 0, 0, 0, range(0.1,stop = 1,length =5))
+	bs = BSpline(13, 3, -5, 5)
+	bs2 = BSpline(myknots, 3)
+	B = Array(getBasis(collect(x), bs))
+	B2 = Array(getBasis(collect(x), bs2))
+	c = B \ y
+	c2 = B2 \ y
+	subplot(311)
+	PyPlot.plot(x, y, label="True function")
+	PyPlot.scatter(x, B * c, color="red", s=2, label="Approximation")
+	title("Uniform knot vector")
+	legend()
+	subplot(312)
+	PyPlot.plot(x, y, label="True function")
+	PyPlot.scatter(x, B2 * c2, color="red", s=2, label="Approximation")
+	title("Knot multiplicity x=0")
+	legend()
+	subplot(313)
+	PyPlot.plot(x, y - B * c, color="blue", label="Uniform")
+	PyPlot.plot(x, y - B2 * c2, color="red", label="Knot multiplicity")
+	title("Error plots")
+	legend()
 	PyPlot.savefig(joinpath(dirname(@__FILE__),"..","q6.png"))
 
 end
