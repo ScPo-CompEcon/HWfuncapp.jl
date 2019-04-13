@@ -52,7 +52,7 @@ function q1(n)
 		y_approx = (P_b) * c
 
 		approx_error = y_new .- y_approx
-		plot(range(-3, stop = 3, length = n_new), [y_new approx_error], label = "Actuals", layout = 2)
+		plot(range(-3, stop = 3, length = n_new), [y_new approx_error], label = ["Actuals" "Errors"], layout = 2)
 		scatter!(range(-3, stop = 3, length = n_new), y_approx, label = "Approximation", marker = (1, :circle))
 
 	# without using PyPlot, just erase the `PyPlot.` part
