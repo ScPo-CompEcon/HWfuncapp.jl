@@ -1,0 +1,4 @@
+[deps]
+ApproxFun = "28f2ccd6-bb30-5033-b560-165f7b14dc2f"
+BasisMatrices = "08854c51-b66b-5062-a90d-8e7ae4547a49"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
