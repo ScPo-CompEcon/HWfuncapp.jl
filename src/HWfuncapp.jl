@@ -13,8 +13,7 @@ using Plots
 ChebyT(x,deg) = cos(acos(x)*deg)
 unitmap(x,lb,ub) = 2 .* (x .- lb) ./ (ub .- lb) .- 1	#[a,b] -> [-1,1]
 
-function q1(n)
-	f(x) = x .+ 2x.^2 - exp.(-x)
+function q1(n = 15)
 	f(x) = x .+ 2x.^2 - exp.(-x)
 	deg = n-1
 	lb = -3
@@ -30,33 +29,42 @@ function q1(n)
 	base2 = [ChebyT(unitmap(x_2[i], lb, ub), j) for i in 1:n_new, j = 0:deg]
 	y2 = base2 * c
 	error = y2 - f(collect(-3:6/99:3))
-	Plots.plot(x_2, [f(collect(-3:6/99:3)) error], labels = ["true_val" "error"], title = "Q1", layout = 2) #somohow plot does not work except on Jupyter 
+	Plots.plot(x_2, [f(collect(-3:6/99:3)) error], labels = ["true_val" "error"], title = "Q1", layout = 2)
 	scatter!(x_2, y2, labels = ["approx"])
 
 	# without using PyPlot, just erase the `PyPlot.` part
-	savefig(joinpath(dirname(@__FILE__),"..","q1.png"))
-	return Dict(:error=>maximum(abs,err))
+	Plots.savefig(joinpath(dirname(@__FILE__),"..","q1.png"))
+	return Dict(:error=>maximum(abs,error))
 end
 
 function q2(b::Number)
 	@assert b > 0
 	# use ApproxFun.jl to do the same:
+	b = 4
+	n_new = 100
+	f(x) = x .+ 2x.^2 - exp.(-x)
+	f2 = Fun(f,-b..b)
+	x = range(-b, b, length = n_new)
+	y2 = f2.(x)
+	y = f.(x)
+	error = y - y2
+	Plots.plot(x, [y error], labels = ["true_val" "error"], title = "Q2", layout = 2)
+	scatter!(x, y2, labels = ["approx"])
 
-	Plots.savefig(p,joinpath(dirname(@__FILE__),"..","q2.png"))
+	Plots.savefig(joinpath(dirname(@__FILE__),"..","q2.png"))
 end
 
 function q3(b::Number)
 
 	# p is your plot
 	return (p,integral)
-end2
+end
 
 # optinal
 function q4()
 
 	return fig
 end
-
 
 # I found having those useful for q5
 mutable struct ChebyType
@@ -129,7 +137,5 @@ function runall()
 	q6()
 	q7()
 end
-
-
 
 end # module
