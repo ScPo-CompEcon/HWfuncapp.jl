@@ -30,9 +30,11 @@ function q1(n)
 	base2 = [ChebyT(unitmap(x_2[i], lb, ub), j) for i in 1:n_new, j = 0:deg]
 	y2 = base2 * c
 	error = y2 - f(collect(-3:6/99:3))
+	Plots.plot(x_2, [f(collect(-3:6/99:3)) error], labels = ["true_val" "error"], title = "Q1", layout = 2)
+	scatter!(x_2, y2, labels = ["approx"])
 
 	# without using PyPlot, just erase the `PyPlot.` part
-	PyPlot.savefig(joinpath(dirname(@__FILE__),"..","q1.png"))
+	savefig(joinpath(dirname(@__FILE__),"..","q1.png"))
 	return Dict(:error=>maximum(abs,err))
 end
 
