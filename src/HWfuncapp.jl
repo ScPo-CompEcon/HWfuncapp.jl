@@ -53,9 +53,21 @@ function q2(b::Number)
 
 	Plots.savefig(joinpath(dirname(@__FILE__),"..","q2.png"))
 end
-
+using LinearAlgebra #for cumsum
 function q3(b::Number)
-
+	b = 10
+	x = Fun(identity, -b..b)
+	f = sin(x^2)
+	g = cos(x)
+	h = f - g
+	r = roots(h)
+	p = Plots.plot(h, label = "h", title = "Q3")
+	scatter!(r,h.(r),labels="roots h")
+	Plots.savefig(joinpath(dirname(@__FILE__),"..","q3.png"))
+	Plots.savefig(joinpath(p,dirname(@__FILE__),"..","q3.png"))
+	k1 = cumsum(h)
+	k = k1 + h(-b)
+	integral = norm(h-k)
 	# p is your plot
 	return (p,integral)
 end
