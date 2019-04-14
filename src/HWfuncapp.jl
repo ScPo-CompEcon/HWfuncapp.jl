@@ -30,7 +30,7 @@ function q1(n)
 	base2 = [ChebyT(unitmap(x_2[i], lb, ub), j) for i in 1:n_new, j = 0:deg]
 	y2 = base2 * c
 	error = y2 - f(collect(-3:6/99:3))
-	Plots.plot(x_2, [f(collect(-3:6/99:3)) error], labels = ["true_val" "error"], title = "Q1", layout = 2)
+	Plots.plot(x_2, [f(collect(-3:6/99:3)) error], labels = ["true_val" "error"], title = "Q1", layout = 2) #somohow plot does not work except on Jupyter 
 	scatter!(x_2, y2, labels = ["approx"])
 
 	# without using PyPlot, just erase the `PyPlot.` part
@@ -49,7 +49,7 @@ function q3(b::Number)
 
 	# p is your plot
 	return (p,integral)
-end
+end2
 
 # optinal
 function q4()
