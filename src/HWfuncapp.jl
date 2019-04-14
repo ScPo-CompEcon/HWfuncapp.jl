@@ -73,8 +73,11 @@ function q3(b::Number)
 end
 
 # optinal
-function q4()
-
+function q4(n)
+	x = range(0, 1, length = n)
+	x2 = collect(0:0.01:1)
+	fig = Plots.plot(x, [ChebyT(x2, deg) for deg in 1:9]) #acos not working
+	Plots.savefig(joinpath(p,dirname(@__FILE__),"..","q4.png"))
 	return fig
 end
 
